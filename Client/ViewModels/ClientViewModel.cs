@@ -1,33 +1,46 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Client.Models;
+using System;
 using System.Configuration;
-using System.Linq;
 using System.Net;
-using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
-namespace NetTcpWpfClient
+namespace Client.ViewModels
 {
-    public class ClientModel
+    internal class ClientViewModel : BaseViewModel
     {
-        public Socket Socket { get; set; }
-        public byte[] Buffer = new byte[BUFFER_SIZE];
-        public static int BUFFER_SIZE = 1024;
-    }
-    
-    public partial class MainWindow : Window
-    {
+        private string _chatMessages;
+        private ClientModel _client;
+
+        private string _message;
+        private IPEndPoint _serverEndpoint;
+
+        public ClientViewModel()
+        {
+        }
+
+        public string ChatMessages
+        {
+            get { return _chatMessages; }
+            set
+            {
+                _chatMessages = value;
+                NotifyOfPropertyChange();
+            }
+        }
+
+        public string Message
+        {
+            get { return _message; }
+            set
+            {
+                _message = value;
+                NotifyOfPropertyChange();
+            }
+        }
+
         public IPEndPoint ServerEndpoint
         {
             get
@@ -45,9 +58,8 @@ namespace NetTcpWpfClient
                 return _serverEndpoint;
             }
         }
-        private IPEndPoint _serverEndpoint;
 
-        public ClientModel Client
+        private ClientModel Client
         {
             get
             {
@@ -62,12 +74,22 @@ namespace NetTcpWpfClient
                 return _client;
             }
         }
-        private ClientModel _client;
 
-        public MainWindow()
+        public void OnKeyDown(KeyEventArgs e)
         {
-            InitializeComponent();
+            if (e.Key == Key.Enter)
+            {
+                SendDataToServer();
+            }
+        }
 
+        public void OnSendMessage()
+        {
+            SendDataToServer();
+        }
+
+        public void OnWindowLoaded()
+        {
             if (ConnectWithServer())
             {
                 Client.Socket.BeginReceive(Client.Buffer, 0, ClientModel.BUFFER_SIZE, SocketFlags.None, new AsyncCallback(RecieveCallback), Client);
@@ -77,7 +99,7 @@ namespace NetTcpWpfClient
         private bool ConnectWithServer()
         {
             try
-            {                
+            {
                 Client?.Socket?.Connect(ServerEndpoint);
             }
             catch (ConfigurationErrorsException)
@@ -120,27 +142,14 @@ namespace NetTcpWpfClient
 
             string message = Encoding.ASCII.GetString(client.Buffer, 0, bytesCount);
 
-            Dispatcher.Invoke(() => chatMessage.Text += message + Environment.NewLine);
+            ChatMessages += message + Environment.NewLine;
 
             client.Socket.BeginReceive(client.Buffer, 0, ClientModel.BUFFER_SIZE, SocketFlags.None, new AsyncCallback(RecieveCallback), client);
         }
 
-        private void sentMessage_Click(object sender, RoutedEventArgs e)
-        {
-            SendDataToServer();
-        }
-
-        private void chat_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                SendDataToServer();
-            }
-        }
-
         private void SendDataToServer()
         {
-            byte[] message = Encoding.ASCII.GetBytes(chat.Text);
+            byte[] message = Encoding.ASCII.GetBytes(Message);
 
             try
             {
@@ -148,22 +157,22 @@ namespace NetTcpWpfClient
             }
             catch (SocketException)
             {
-               MessageBoxResult result = MessageBox.Show("The server is unreachable. Do you want to reconnect?", "Server error", MessageBoxButton.YesNo);
+                MessageBoxResult result = MessageBox.Show("The server is unreachable. Do you want to reconnect?", "Server error", MessageBoxButton.YesNo);
 
-                if(result == MessageBoxResult.Yes)
+                if (result == MessageBoxResult.Yes)
                 {
                     if (ConnectWithServer())
                     {
                         Client.Socket.BeginReceive(Client.Buffer, 0, ClientModel.BUFFER_SIZE, SocketFlags.None, new AsyncCallback(RecieveCallback), Client);
                     }
                 }
-            }            
+            }
             catch (Exception ex)
             {
                 MessageBox.Show("Ann error occured while sending data");
             }
 
-            chat.Text = string.Empty;
+            Message = string.Empty;
         }
     }
 }
