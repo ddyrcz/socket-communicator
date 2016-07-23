@@ -1,4 +1,4 @@
-﻿using Client.Models;
+﻿using Models;
 using System;
 using System.Configuration;
 using System.Net;
@@ -12,7 +12,7 @@ namespace Client.ViewModels
     internal class ClientViewModel : BaseViewModel
     {
         private string _chatMessages;
-        private ClientModel _client;
+        private SocketModel _client;
 
         private string _message;
         private IPEndPoint _serverEndpoint;
@@ -59,13 +59,13 @@ namespace Client.ViewModels
             }
         }
 
-        private ClientModel Client
+        private SocketModel Client
         {
             get
             {
                 if (_client == null)
                 {
-                    _client = new ClientModel
+                    _client = new SocketModel
                     {
                         Socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp),
                     };
@@ -92,7 +92,7 @@ namespace Client.ViewModels
         {
             if (ConnectWithServer())
             {
-                Client.Socket.BeginReceive(Client.Buffer, 0, ClientModel.BUFFER_SIZE, SocketFlags.None, new AsyncCallback(RecieveCallback), Client);
+                Client.Socket.BeginReceive(Client.Buffer, 0, SocketModel.BUFFER_SIZE, SocketFlags.None, new AsyncCallback(RecieveCallback), Client);
             }
         }
 
@@ -107,7 +107,7 @@ namespace Client.ViewModels
                 MessageBox.Show("An error occured while reading configuration file");
                 return false;
             }
-            catch (SocketException)
+            catch (SocketException ex)
             {
                 MessageBox.Show("An error occured while connecting to the server");
                 return false;
@@ -123,7 +123,7 @@ namespace Client.ViewModels
 
         private void RecieveCallback(IAsyncResult result)
         {
-            ClientModel client = result.AsyncState as ClientModel;
+            SocketModel client = result.AsyncState as SocketModel;
 
             int bytesCount;
 
@@ -144,7 +144,7 @@ namespace Client.ViewModels
 
             ChatMessages += message + Environment.NewLine;
 
-            client.Socket.BeginReceive(client.Buffer, 0, ClientModel.BUFFER_SIZE, SocketFlags.None, new AsyncCallback(RecieveCallback), client);
+            client.Socket.BeginReceive(client.Buffer, 0, SocketModel.BUFFER_SIZE, SocketFlags.None, new AsyncCallback(RecieveCallback), client);
         }
 
         private void SendDataToServer()
@@ -163,7 +163,7 @@ namespace Client.ViewModels
                 {
                     if (ConnectWithServer())
                     {
-                        Client.Socket.BeginReceive(Client.Buffer, 0, ClientModel.BUFFER_SIZE, SocketFlags.None, new AsyncCallback(RecieveCallback), Client);
+                        Client.Socket.BeginReceive(Client.Buffer, 0, SocketModel.BUFFER_SIZE, SocketFlags.None, new AsyncCallback(RecieveCallback), Client);
                     }
                 }
             }

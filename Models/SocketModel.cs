@@ -1,8 +1,8 @@
 ﻿using System.Net.Sockets;
 
-namespace Client.Models
+namespace Models
 {
-    internal class ClientModel
+    public class SocketModel
     {
         public static int BUFFER_SIZE = 1024;
         public byte[] Buffer = new byte[BUFFER_SIZE];

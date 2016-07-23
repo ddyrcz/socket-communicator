@@ -1,8 +1,8 @@
-﻿<Window x:Class="NetTcpWpfListener.MainWindow"
+﻿<Window x:Class="Server.Views.ServerView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:local="clr-namespace:NetTcpWpfListener"
+        xmlns:local="clr-namespace:Server"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         Title="SERVER"
         Width="533.419"
@@ -16,8 +16,7 @@
                HorizontalAlignment="Left"
                VerticalAlignment="Top"
                Content="Logs" />
-        <TextBox x:Name="logs"
-                 Width="497"
+        <TextBox Width="497"
                  Height="140"
                  Margin="10,41,0,0"
                  HorizontalAlignment="Left"
@@ -26,6 +25,7 @@
                  BorderBrush="#FF0040FF"
                  Foreground="#FF1313D8"
                  IsReadOnly="True"
+                 Text="{Binding Logs}"
                  TextWrapping="Wrap"
                  VerticalScrollBarVisibility="Auto" />
         <Label x:Name="label1"
@@ -34,8 +34,7 @@
                HorizontalAlignment="Left"
                VerticalAlignment="Top"
                Content="Client list" />
-        <TextBox x:Name="clients"
-                 Width="497"
+        <TextBox Width="497"
                  Height="92"
                  Margin="10,217,0,0"
                  HorizontalAlignment="Left"
@@ -44,8 +43,8 @@
                  Foreground="Black"
                  IsReadOnly="True"
                  ScrollViewer.CanContentScroll="True"
+                 Text="{Binding ClientsString}"
                  TextWrapping="Wrap"
                  VerticalScrollBarVisibility="Auto" />
-
     </Grid>
 </Window>
